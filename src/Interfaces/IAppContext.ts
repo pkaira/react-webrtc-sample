@@ -13,7 +13,6 @@ export interface IAppContext {
     publishers: IPublisher[]
 
     incomingMessages: IMessageRecord[]
-    outgoingMessages: IMessageRecord[]
 
     addRecvDataMessage: (msg:string, src:string) => void
     sendDataMessage: (msg:string) => void

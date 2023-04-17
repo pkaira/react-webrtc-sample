@@ -1,8 +1,9 @@
 import { useContext, useState } from "react"
-import { Button, TextField } from "@mui/material"
+import { Box, Button, TextField } from "@mui/material"
 import { Stack } from "@mui/system"
 import { AppContext } from "../Classes/AppContext"
 import { MessageCard } from "./MessageCard"
+import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 
 export const DataInterface = () => {
     const {
@@ -13,21 +14,28 @@ export const DataInterface = () => {
     const [outMessage, setOutMessage] = useState<string>('')
 
     return (
-        <Stack direction="row">
-            <Stack>
-                {incomingMessages.map((record) => 
-                    <TextField
-                        id={record.id}
-                        key={record.id}
-                        multiline
-                        disabled
-                        label={record.src}
-                        value={record.message}
-                    />)
-                }
-            </Stack>
+        <Stack direction="row" gap={1}>
+            <Box style={{height: '20vh', overflow:'auto'}} flexGrow={1}>
+                <Stack gap={1} flexGrow={1}>
+                    {incomingMessages.map((record) => 
+                        <TextField
+                            id={record.id}
+                            key={record.id}
+                            multiline
+                            focused
+                            InputProps={{
+                                readOnly: true
+                            }}
+                            label={record.src}
+                            value={record.message}
+                            color={ record.src == "self" ? "primary" : "secondary"}
+                        />)
+                    }
+                </Stack>
+            </Box>
             <Stack>
                 <TextField
+                    sx={{width:'200'}}
                         id="send-message"
                         key="send-message"
                         multiline
@@ -37,7 +45,7 @@ export const DataInterface = () => {
                 <Button onClick={() => { 
                     sendDataMessage(outMessage)
                     setOutMessage('')
-                }}>
+                }} variant="contained">
                     Send
                 </Button> 
             </Stack>

@@ -18,7 +18,6 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
     const [localMediaStreams, setLocalMediaStreams] = useState<IMediaStream[]>([])
     const [remoteMediaStreams, setRemoteMediaStreams] = useState<IMediaStream[]>([])
     const [incomingMessages, setIncomingMessages] = useState<IMessageRecord[]>([])
-    const [outgoingMessages, setOutgoingMessages] = useState<IMessageRecord[]>([])
 
     const [publishers, setPublishers] = useState<IPublisher[]>([{
         index: 0,
@@ -60,12 +59,18 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
         if(peerCon?.rtcConn)
         {
             peerCon.sendDataChannelMessage(msg)
-            setOutgoingMessages([...outgoingMessages, {id: uuid(), message: msg, src:"self"}])
+            addRecvDataMessage(msg,"self")
         }
     }
 
     const addRecvDataMessage = (msg:string, src:string) => {
-        setIncomingMessages([...incomingMessages, {id:uuid(), message:msg, src: src}])
+        const newRecord:IMessageRecord = {
+            id:uuid(), 
+            message:msg, 
+            src: src
+        }
+        incomingMessages.push(newRecord)
+        setIncomingMessages([...incomingMessages])
     }
 
     const initLocalStreams = () => {
@@ -125,7 +130,6 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
             localMediaStreams,
             publishers,
             incomingMessages,
-            outgoingMessages,
             changeRemoteResolutionClass,
             appendStream,
             removeStream,

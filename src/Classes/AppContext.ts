@@ -9,7 +9,6 @@ export const AppContext = createContext<IAppContext>({
     remoteMediaStreams: [],
     publishers: [],
     incomingMessages: [],
-    outgoingMessages: [],
     changeRemoteResolutionClass:  (newResolution:ResolutionClass) => {},
     appendStream: (newStream:IMediaStream) => {},
     removeStream: (removeId:string) => {},

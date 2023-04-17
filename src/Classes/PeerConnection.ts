@@ -301,7 +301,7 @@ export class PeerConnection {
     }
 
     startDataChannel = () => {
-        this.sendDataConn = this.rtcConn?.createDataChannel('send-'+this.getMyPeerId)
+        this.sendDataConn = this.rtcConn?.createDataChannel('send-'+this.getMyPeerId())
         if(this.sendDataConn)
         {
             this.sendDataConn.onopen = (event) => this.handleSendChannelStatusChange(event)
