@@ -1,6 +1,7 @@
 import { createContext } from "react"
 import { IAppContext } from "../Interfaces/IAppContext"
 import { IMediaStream } from "../Interfaces/IMediaStream"
+import IPublisher from "../Interfaces/IPublisher"
 import { ResolutionClass } from "../Classes/SharedEnums"
 
 export const AppContext = createContext<IAppContext>({
@@ -18,5 +19,6 @@ export const AppContext = createContext<IAppContext>({
     setPeerId: (newPeerId:string|undefined) => {},
     callPeer: (peerId:string) => {},
     sendDataMessage: (msg:string) => {},
-    addRecvDataMessage: (msg:string, src:string) => {}
+    addRecvDataMessage: (msg:string, src:string) => {},
+    updatePublishers: (publishers:IPublisher[]) => {}
 })

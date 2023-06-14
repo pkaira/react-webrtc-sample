@@ -28,4 +28,5 @@ export interface IAppContext {
 
     addPublishers: () => void
     removePublishers: () => void
+    updatePublishers: (publishers:IPublisher[]) => void
 }

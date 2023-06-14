@@ -24,53 +24,7 @@ export class PeerConnection {
     connState:string = 'init'
     waitingForLocalStream:boolean = false
 
-    connConfig:RTCConfiguration = {
-        iceServers: [
-            /*{ 
-                urls: 'stun:turn1.udp.intouchstaging.net:35001?transport=udp'
-            },
-            { 
-                urls: 'stun:turn3.udp.intouchstaging.net:35001?transport=udp'
-            },
-            { 
-                url: 'turn:turn3.udp.intouchstaging.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            },
-            { 
-                url: 'turn:turn1.udp.intouchstaging.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            },
-            { 
-                url: 'turn:turn2.udp.intouchstaging.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            }
-            /*{ 
-                url: 'turn:turn3.udp.intouchconnect.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            },
-            { 
-                url: 'turn:turn1.udp.intouchconnect.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            },
-            { 
-                url: 'turn:turn2.udp.intouchconnect.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            },
-            { 
-                url: 'turn:turn4.udp.intouchconnect.net:35001?transport=udp', 
-                username: turn_user_name,
-                credential: turn_credential
-            }*/
-            
-        ],
-        iceTransportPolicy: 'all'
-    };
+    connConfig:RTCConfiguration = {}
 
     public constructor(props:PeerConnectionProp) {
         this.props = props
@@ -79,6 +33,20 @@ export class PeerConnection {
             this.handleConnection,
             this.props.setPeerId
         )
+        fetch('https://pcuvfqpavqwz5jfsdnb5bdsige0akonw.lambda-url.us-west-2.on.aws/')
+            .then(res => res.json())
+            .then((params) => {
+                this.connConfig = {
+                    iceServers: [
+                        { 
+                            urls: 'turn:pkwin.freemyip.com', 
+                            username: params.username,
+                            credential: params.password
+                        }
+                    ],
+                    iceTransportPolicy: 'all'
+                };
+            })
     }
 
     public connectToPeer = (remotePeer:string) => {
@@ -89,8 +57,7 @@ export class PeerConnection {
     {
         this.rtcConn = new RTCPeerConnection(this.connConfig)
         this.rtcConn.onicecandidate = (candidates) => {
-            if(candidates.candidate)
-            {
+            if(candidates.candidate) {
                 this.sendData(
                     {
                         src: this.sCon.peerId,
@@ -159,12 +126,9 @@ export class PeerConnection {
         this.startConnection()
         this.props.initLocalStreams()
         this.waitingForLocalStream = true
-        if(data=='outgoing')
-        {
+        if(data=='outgoing') {
             this.connState='creating-offer'
-        }
-        else if(data=='incoming')
-        {
+        } else if(data=='incoming') {
             // nothing
         }
     }
@@ -177,17 +141,19 @@ export class PeerConnection {
                 mStream.tracks.map(trk => this.rtcConn?.addTrack(trk, mStream.videoStream))
             }
         })
-        if(this.connState=='creating-offer')
-        {
+        if(this.connState=='creating-offer') {
             this.createOffer()
-        }
-        else if(this.connState=='creating-answer')
-        {
+        } else if(this.connState=='creating-answer') {
             this.createAnswer()
         }
     }
 
+    muteAudio = () => {
+    }
 
+    unmuteAudio = () => {
+
+    }
 
     sendData = (msg:ISignalingMessage) => {
         this.sCon?.sendData(JSON.stringify(msg))
@@ -196,8 +162,7 @@ export class PeerConnection {
     handleTracks = ( event:RTCTrackEvent ) => {
         event.streams.forEach(stream => {
             stream.getTracks().forEach(trk => {
-                if(trk.kind==='video')
-                {
+                if(trk.kind==='video') {
                     /*let videoElement = document.createElement("video")
                     videoElement.autoplay = true
                     videoElement.playsInline = true
@@ -226,7 +191,7 @@ export class PeerConnection {
         this.startDataChannel()
         this.rtcConn?.createOffer()
             .then((offer) => this.rtcConn?.setLocalDescription(offer))
-            .then( () =>{
+            .then( () => {
                 this.sendData(
                     {
                         src: this.sCon.peerId,
@@ -302,33 +267,28 @@ export class PeerConnection {
 
     startDataChannel = () => {
         this.sendDataConn = this.rtcConn?.createDataChannel('send-'+this.getMyPeerId())
-        if(this.sendDataConn)
-        {
+        if(this.sendDataConn) {
             this.sendDataConn.onopen = (event) => this.handleSendChannelStatusChange(event)
             this.sendDataConn.onclose = (event) => this.handleSendChannelStatusChange(event)
         }
     }
 
     handleSendChannelStatusChange = (event:Event) => {
-        if(this.sendDataConn)
-        {
+        if(this.sendDataConn) {
             //do something
         }
     }
 
     handleRecvChannelStatusChange = (event:Event) => {
-        if(this.recvDataConn)
-        {
+        if(this.recvDataConn) {
             //do something
         }
     }
 
     handleRecvChannelCallback = (event:RTCDataChannelEvent) => {
-        if(!this.recvDataConn)
-        {
+        if(!this.recvDataConn) {
             this.recvDataConn = event.channel
-            if(this.recvDataConn)
-            {
+            if(this.recvDataConn) {
                 this.recvDataConn.onmessage = this.handleRecvMessage
                 this.recvDataConn.onopen = (event) => {
                     /*if(!this.sendDataConn)
@@ -394,284 +354,3 @@ export class PeerConnection {
 
     }
 }
-    /*constructor(_remotePeerId, _incomingOffer = null) {
-        
-        
-        this.remoteTracks = [];
-        this.remotePeerId = _remotePeerId;
-        this.rtcConn = new RTCPeerConnection(connConfig);
-        this.rtcConn.onicecandidate = (candidates) => {
-            if(candidates.candidate)
-            {
-                // send the candidates to other connection via signaling
-                this.send(MSG_TYPE.RTC_ICE_CANDIDATE, candidates.candidate);
-            }
-        };
-        this.rtcConn.onicegatheringstatechange = () => {
-            console.log("Ice State:" + this.rtcConn.iceGatheringState);
-        };
-        this.rtcConn.onicecandidateerror = (e) => {
-            console.error(e.errorText);
-        };
-        this.rtcConn.onconnectionstatechange = () => {
-            console.log("Conn State:" + this.rtcConn.connectionState);
-            switch(this.rtcConn.connectionState)
-            {
-                case "connected":
-                    break;
-                case "disconnected":
-                case "failed":
-                    this.close();
-                    break;
-                case "closed":
-                    removePeerConnection();
-                    break;
-            }
-        };
-        this.rtcConn.onnegotiationneeded = (e) => {
-            if (this.rtcConn.signalingState != "stable") return;
-        };
-        
-        this.rtcConn.ontrack = ({ track, streams}) => {
-            streams.forEach(stream => {
-                stream.getTracks().forEach(trk => {
-                    if(trk.kind==='video')
-                    {
-                        addRemoteVideo(trk.id, stream);
-                        this.remoteTracks.push(trk.id);
-                    }
-                });
-                stream.onremovetrack = (ev) => {
-                    console.log(ev);
-                };                
-            });
-            track.onmuted = (ev) => {
-                console.log(ev);
-            };
-            setTimeout(this.getICEStats, 5000, this);
-        };
-        
-        this.rtcConn.onremovetrack = (event) => {
-
-        };
-
-        if(_incomingOffer)
-        {
-            this.handleMessages(_remotePeerId, _incomingOffer);
-        }
-        else
-        {
-            setTimeout(this.addStream, 500, this, true);
-        }
-    }
-
-    getICEStats(parent)
-    {
-        if(parent.rtcConn)
-        {
-            parent.rtcConn.getStats(null).then(results => { GetICEInfo(results) });
-            setTimeout(parent.getRTCStats, 3000, parent);
-        }
-    }
-
-    getRTCStats(parent)
-    {
-        if(parent.rtcConn)
-        {
-            parent.rtcConn.getStats(null).then(results => {
-                let tracks = [];
-                results.forEach(report => {
-                    if(report.type == "inbound-rtp" && report.kind=="video" && report.trackId)
-                    {
-                        let textContent = report.frameWidth+"x"+report.frameHeight+"@"+report.framesPerSecond;
-                        tracks.push({ "id": report.trackId, "content":  textContent });
-                    }
-                });
-                if(tracks.length>0)
-                {
-                    results.forEach(report => {
-                        if(report.type == "track" && report.kind=="video" && report.remoteSource==true)
-                        {
-                            tracks.forEach(trackInfo => {
-                                if(trackInfo.id  == report.id)
-                                {
-                                    let guid = GetCleanTrackId(report.trackIdentifier);
-                                    let srm = document.querySelector('#srm-'+guid);
-                                    if(srm)
-                                    {
-                                        if(srm.textContent=="...")
-                                        {
-                                            srm.classList.remove("hide");
-                                        }
-                                        srm.textContent = trackInfo.content;
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } 
-            });
-            setTimeout(parent.getRTCStats, 2000, parent);
-        }
-    }
-
-    
-    addStream(parent, shouldCreateOffer)
-    {
-        if(allStreamsLoaded && pubStream.length > 0)
-        {
-            let isFHD = false;
-            pubStream.forEach(stream => {
-                stream.getTracks().forEach(track => {
-                    parent.rtcConn.addTrack(track, stream);
-                    if(track.kind=="video" && track.getSettings().height == "1080")
-                    {
-                        isFHD = true;
-                    }
-                });
-            }); 
-            if(shouldCreateOffer)
-            {
-                parent.createOffer();
-            }
-            else
-            {
-                parent.createAnswer();
-            }
-            if(isFHD)
-            {
-                setTimeout(parent.updateBwTarget, 5000, parent, 4999);
-            }
-        }
-        else
-        {
-            setTimeout(parent.addStream, 500, parent, shouldCreateOffer);
-        }
-
-    }
-    isForThisConnection(_peerId) {
-        return (_peerId != "") && ((_peerId === this.remotePeerId) || (_peerId === 'ALL'));
-    }
-    handleMessages(_peerId, data)
-    {
-        if(this.isForThisConnection(_peerId))
-        {
-            var msg = data;
-            var msgString = msg["body"];
-            switch(msg["msgtype"])
-            {
-                case MSG_TYPE.RTC_ICE_CANDIDATE:
-                    this.onCandidate(msgString);
-                    break;
-                case MSG_TYPE.RTC_OFFER:
-                    this.onOffer(msgString);
-                    break;
-                case MSG_TYPE.RTC_ANSWER:
-                    this.onAnswer(msgString)
-                    break;
-                case MSG_TYPE.RTC_BYE:
-                    this.close();
-                    break;
-                case MSG_TYPE.CHAT:
-                    // to be implemented
-                    console.error("Message Type["+msg["type"]+"] not yet implemented.");
-                    break;
-                default:
-                    console.error("Message Type["+msg["type"]+"] unknown.");
-                    break;
-            }
-        }
-    }
-    sendChat(_peerId, _msg) {
-        var sent = false;
-        if(this.isForThisConnection(_peerId))
-        {
-            this.send(MSG_TYPE.CHAT, _msg);
-            sent = true;
-        }
-        return sent;
-    }
-    send(_type, _msg) {
-        // to be implemented
-        SendMessage(this.remotePeerId, null, "room.m.signal", _type, JSON.stringify(_msg), null);
-    }
-    isConnected()
-    {
-        return this.rtcConn.connectionState==="connected" ;
-    }
-    removeVideoTracks()
-    {
-        this.rtcConn.getTransceivers().forEach(tr => {
-            //if(tr.sender.track.kind === 'video')
-            if(tr && tr.sender)
-            {
-                this.rtcConn.removeTrack(tr.sender);
-            }
-        });
-    }
-    initiateShutdown()
-    {
-        this.removeVideoTracks();
-        this.send(MSG_TYPE.RTC_BYE, "bye");
-        setTimeout(this.close, 2000);
-    }
-    close()
-    {
-        this.remoteTracks.forEach(id => removeVideoElement("div-"+GetCleanTrackId(id)));
-        this.remoteTracks = [];
-        this.rtcConn.close();
-        this.rtcConn = null;
-        removePeerConnection();
-    }
-    updateMediaConstraints(desc)
-    {
-        let modifier = 'AS';
-        let bandwidth = 5000;
-        if (adapter.browserDetails.browser === 'firefox') {
-            bandwidth = (bandwidth >>> 0) * 1000;
-            modifier = 'TIAS';
-        }
-        let sdp = desc.sdp;
-        if (sdp.indexOf('b=' + modifier + ':') === -1) {
-            // insert b= after c= line.
-            sdp = sdp.replace(/c=IN (.*)\r\n/, 'c=IN $1\r\nb=' + modifier + ':' + bandwidth + '\r\n');
-        } else {
-            sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n'), 'b=' + modifier + ':' + bandwidth + '\r\n');
-        }
-        desc.sdp = sdp;
-        return desc;
-    }
-    updateBwTarget(parent, bandwidth)
-    {
-        if((adapter.browserDetails.browser === 'chrome' || 
-            adapter.browserDetails.browser === 'safari' ||
-            adapter.browserDetails.browser === 'firefox') && 
-            'RTCRtpSender' in window &&
-            'setParameters' in window.RTCRtpSender.prototype) 
-        {
-            const senders = parent.rtcConn.getSenders();
-            senders.forEach(sender => {
-                if(sender.track.kind==='video')
-                {
-                    const parameters = sender.getParameters();
-                    if(!parameters.encodings){
-                        parameters.encodings = [{}];
-                    }
-                    if(bandwidth==='unlimited')
-                    {
-                        delete parameters.encodings[0].maxBitrate;
-                    }
-                    else
-                    {
-                        parameters.encodings[0].maxBitrate = bandwidth * 1000;
-                    }
-                    sender.setParameters(parameters)
-                        .then(() => {
-                            console.log('Bandwidth parameters changed to '+bandwidth);
-                        })
-                        .catch(e => console.error(e));
-                }
-            });
-        }
-    }
-}*/

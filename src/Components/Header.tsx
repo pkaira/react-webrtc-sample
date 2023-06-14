@@ -22,32 +22,31 @@ export const Header = () =>{
     const {
         publishers,
         addPublishers,
-        removePublishers
-        } = useContext(AppContext)
+        removePublishers,
+        updatePublishers
+    } = useContext(AppContext)
     
 
     const updatePublisherDevice = (id:string, deviceId:string) => {
-        if(id==='audio-input-device')
-        {
+        if(id==='audio-input-device') {
             publishers[0].audioDeviceId = deviceId
-        }
-        else if(id==='audio-output-device')
-        {
+        } else if(id==='audio-output-device') {
             // nothing to do
-        }
-        else {
+        } else {
             publishers.map((publisher:IPublisher) => {
-                if(publisher.streamId = id)
+                if(publisher.streamId == id)
                     publisher.deviceId = deviceId
             })
         }
+        updatePublishers(publishers)
     }
 
-    const updatePublisherResolution = (id:string, resolution:string) => {
+    const updatePublisherResolution = (id:string, resolution:ResolutionClass) => {
         publishers.map((publisher:IPublisher) => {
-            if(publisher.streamId = id)
-                publisher.resolution = resolution as ResolutionClass
+            if(publisher.streamId == id)
+                publisher.resolution = resolution
         })
+        updatePublishers(publishers)
     }
 
     const videoToggle = (event:any) => {

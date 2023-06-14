@@ -4,7 +4,15 @@ import { IResolution } from "../Interfaces/IResolution"
 import { IAVConstraints } from "../Interfaces/IAVConstraints"
 import { IMediaStream } from "../Interfaces/IMediaStream"
 
-
+export const getAVPermissions = ():Promise<boolean> => {
+    return navigator.mediaDevices.getUserMedia({audio:true, video:true})
+        .then((stream) => {
+            stream.getTracks().forEach(trk => trk.stop())
+            return true
+        })
+        .catch(() => {return false})
+        
+} 
 export const getResolution = (res:IResolution) => {
     return `${res.width}x${res.height}`
 } 

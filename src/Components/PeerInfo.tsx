@@ -65,7 +65,7 @@ export const PeerInfo = () => {
                     variant="contained"
                     onClick={onClickCall}
                     sx={{minWidth:100}}
-                    disabled={ (myPeerId && callPeerId.length>10) ? false:true}>
+                    disabled={ (myPeerId && callPeerId.length>1) ? false:true}>
                         Call
                     </Button>
             </Stack>

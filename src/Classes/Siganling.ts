@@ -1,6 +1,8 @@
 import { Peer } from "peerjs"
 import { ISignalingMessage } from "../Interfaces/ISignalingMessage"
 
+const PEER_SUFFIX = 'lvdsxdw9douiu6uzfz288bnp3lfg'
+
 export class SignalingConnection {
     peer:Peer
     public peerId:string = ''
@@ -18,10 +20,16 @@ export class SignalingConnection {
         this.handleIncomingData = handleIncomingData
         this.handleConnection = handleConnection
         this.setPeerId = setPeerId
-        this.peer = new Peer()
+        
+        this.peer = new Peer(this.getRandomPrefix()+'-'+PEER_SUFFIX)
         
         this.peer.on('open', (id) => {
             this.peerId = id
+            console.log(id)
+            if(id.indexOf('-')>0 && id.indexOf('-')<7)
+            {
+                id = id.substring(0,id.indexOf('-'))
+            }
             this.setPeerId(id)
         })
         this.peer.on('error', (error) => {
@@ -44,6 +52,9 @@ export class SignalingConnection {
 
     connectToPeer(remotePeer:string)
     {
+        if(remotePeer.length < 6) {
+            remotePeer = remotePeer+"-"+PEER_SUFFIX
+        }
         const conn = this.peer.connect(remotePeer)
         this.conn = conn
         conn.on('open', ()=> {
@@ -52,5 +63,9 @@ export class SignalingConnection {
         conn.on('data', (data:any) => {
             this.handleIncomingData(JSON.parse(data) as ISignalingMessage)
         })
+    }
+
+    getRandomPrefix = () => {
+        return Math.floor(Math.random() * 10007)+1;
     }
 }

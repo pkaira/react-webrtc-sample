@@ -31,7 +31,7 @@ export const VideoContainer = (props:Props) => {
         return (
             <>
                 <Box p={2}>
-                    <video autoPlay playsInline muted
+                    <video autoPlay playsInline muted={props.isLocal  || !props.isAudioAvailable}
                     ref={videoElement} className={ props.isLocal ? 'qhd-res' : remoteResolutionClass}/>
                 </Box>
             </>

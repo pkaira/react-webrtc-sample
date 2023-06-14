@@ -70,7 +70,7 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
             src: src
         }
         incomingMessages.push(newRecord)
-        setIncomingMessages([...incomingMessages])
+        setIncomingMessages(incomingMessages)
     }
 
     const initLocalStreams = () => {
@@ -97,7 +97,11 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
 
     const removePublishers = () => {
         publishers.pop()
-        setPublishers([...publishers])
+        setPublishers(publishers)
+    }
+
+    const updatePublishers = (newPublisher:IPublisher[]) => {
+        setPublishers(newPublisher)
     }
 
     const changeRemoteResolutionClass = (newResolution:ResolutionClass) => {
@@ -139,7 +143,8 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
             setPeerId,
             callPeer,
             sendDataMessage,
-            addRecvDataMessage
+            addRecvDataMessage,
+            updatePublishers
         }}>{children}
         </AppContext.Provider>
     )
