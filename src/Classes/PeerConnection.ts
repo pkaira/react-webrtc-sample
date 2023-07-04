@@ -39,7 +39,7 @@ export class PeerConnection {
                 this.connConfig = {
                     iceServers: [
                         { 
-                            urls: 'turn:pkwin.freemyip.com', 
+                            urls: params.turn_uri, 
                             username: params.username,
                             credential: params.password
                         }
