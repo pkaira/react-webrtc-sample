@@ -1,7 +1,4 @@
-import React, { useState} from 'react'
-import logo from './logo.svg'
 import {Container } from '@mui/material'
-import Select, {SelectChangeEvent} from '@mui/material/Select'
 import './App.css'
 import { Header } from './Components/Header';
 import { AppContextProvider } from './Components/AppContextProvider'

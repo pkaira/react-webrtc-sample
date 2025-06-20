@@ -5,6 +5,7 @@ import { useContext } from "react"
 import { AppContext } from "../Classes/AppContext"
 import { initLocalStream } from "./Helper"
 import IPublisher from "../Interfaces/IPublisher"
+import watchRTC from "@testrtc/watchrtc-sdk"
 
 type PeerConnectionProp = {
     appendStream: (newStream:IMediaStream) => void
@@ -33,7 +34,7 @@ export class PeerConnection {
             this.handleConnection,
             this.props.setPeerId
         )
-        fetch('https://pcuvfqpavqwz5jfsdnb5bdsige0akonw.lambda-url.us-west-2.on.aws/')
+        /*fetch('https://pcuvfqpavqwz5jfsdnb5bdsige0akonw.lambda-url.us-west-2.on.aws/')
             .then(res => res.json())
             .then((params) => {
                 this.connConfig = {
@@ -46,7 +47,17 @@ export class PeerConnection {
                     ],
                     iceTransportPolicy: 'all'
                 };
-            })
+            })*/
+        this.connConfig = {
+            iceServers: [
+                { 
+                    urls: "turn:turn6.udp.intouchconnect.net:35001?transport=udp", 
+                    username: "1734024600:XspAybYjVVWEIi0",
+                    credential: "iJAbhNbBEYsZ3f3F/IpRkHxzLnM="
+                }
+            ],
+            iceTransportPolicy: 'relay'
+        };
     }
 
     public connectToPeer = (remotePeer:string) => {
@@ -100,6 +111,12 @@ export class PeerConnection {
 
         this.rtcConn.ontrack = this.handleTracks
         this.rtcConn.ondatachannel = this.handleRecvChannelCallback
+
+        watchRTC.setConfig({
+            rtcApiKey: "7cff4ad8-9c0b-4b27-9e4f-86be854c87c0",
+            rtcRoomId: this.getMyPeerId().split('-')[1],
+            rtcPeerId: this.getMyPeerId()
+        })
     }
 
     handleIncomingData = (msg:ISignalingMessage) => {

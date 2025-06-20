@@ -8,6 +8,7 @@ import { IMediaStream } from '../Interfaces/IMediaStream'
 import { IMessageRecord } from '../Interfaces/IMessageRecord'
 import IPublisher from '../Interfaces/IPublisher'
 import uuid from 'react-uuid'
+import watchRTC from "@testrtc/watchrtc-sdk"
 
 let peerCon:PeerConnection|null = null
 
@@ -41,13 +42,13 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
     }
 
     const appendStream = (newStream:IMediaStream) => {
-        setRemoteMediaStreams([... remoteMediaStreams, newStream])
+        setRemoteMediaStreams([...remoteMediaStreams, newStream])
     }
 
     const removeStream = (removeId:string ='') => {
         for(let i=0; i< remoteMediaStreams.length; i++)
         {
-            if(remoteMediaStreams[i].id==removeId)
+            if(remoteMediaStreams[i].id===removeId)
             {
                 remoteMediaStreams.splice(i,1);
                 i--;
@@ -78,7 +79,7 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
             initLocalStream(publisher).then(
                 mStream => {
                     if(mStream)
-                        setLocalMediaStreams([... localMediaStreams, mStream])
+                        setLocalMediaStreams([...localMediaStreams, mStream])
                 }
             )
         })
@@ -108,6 +109,10 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
         setRemoteResolutionClass(newResolution)
     }
 
+    watchRTC.init({
+        rtcApiKey: "7cff4ad8-9c0b-4b27-9e4f-86be854c87c0",
+    })
+
     useEffect(()=>{
         if(!peerCon)
         {
@@ -120,7 +125,7 @@ export const AppContextProvider = ({children}: {children: React.ReactNode}) => {
             })
         }
 
-        if(peerCon.waitingForLocalStream && localMediaStreams.length == publishers.length)
+        if(peerCon.waitingForLocalStream && localMediaStreams.length === publishers.length)
         {
             peerCon.initStreams(localMediaStreams)
         }
